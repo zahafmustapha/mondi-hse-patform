@@ -11,10 +11,19 @@
                 
                 <div class="mb-6 flex justify-between items-center">
                     <h3 class="text-lg font-medium text-gray-900">قائمة التكوينات المتاحة</h3>
-                    <a href="{{ route('formations.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                        + إضافة تكوين جديد
-                    </a>
+                    @if(auth()->user()->role === 'admin')
+                        <a href="{{ route('formations.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            + إضافة تكوين جديد
+                        </a>
+                    @endif
                 </div>
+
+                <!-- رسائل النجاح أو التنبيهات -->
+                @if(session('success'))
+                    <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
@@ -23,7 +32,7 @@
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">العنوان</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الوصف</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المدة (ساعات)</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">الإجراءات والعمليات</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -34,13 +43,34 @@
                                         <td class="px-6 py-4 text-sm text-gray-500">{{ $formation->description }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $formation->duration_hours }} س</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 space-x-reverse">
-                                            <a href="{{ route('formations.edit', $formation->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md">تعديل</a>
                                             
-                                            <form action="{{ route('formations.destroy', $formation->id) }}" method="POST" class="inline-block" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
+                                            <!-- زر التسجيل -->
+                                            <form action="{{ route('formations.enrollments.store', $formation->id) }}" method="POST" class="inline-block">
                                                 @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md">حذف</button>
+                                                <button type="submit" class="text-green-700 hover:text-green-900 bg-green-50 px-3 py-1 rounded-md font-bold transition">
+                                                    تسجيل
+                                                </button>
                                             </form>
+
+                                            <!-- خيارات الأدمن بناءً على role -->
+                                            @if(auth()->user()->role === 'admin')
+                                                <a href="{{ route('formations.enrollments.index', $formation->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md transition">
+                                                    المشاركون
+                                                </a>
+
+                                                <a href="{{ route('formations.edit', $formation->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded-md transition">
+                                                    تعديل
+                                                </a>
+                                                
+                                                <form action="{{ route('formations.destroy', $formation->id) }}" method="POST" class="inline-block" onsubmit="return confirm('هل أنت متأكد من الحذف؟')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md transition">
+                                                        حذف
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                         </td>
                                     </tr>
                                 @empty
