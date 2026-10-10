@@ -11,6 +11,8 @@
                 
                 <div class="mb-6 flex justify-between items-center">
                     <h3 class="text-lg font-medium text-gray-900">قائمة التكوينات المتاحة</h3>
+                    
+                    <!-- زر إضافة تكوين جديد يظهر للأدمن فقط -->
                     @if(auth()->user()->role === 'admin')
                         <a href="{{ route('formations.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                             + إضافة تكوين جديد
@@ -22,6 +24,12 @@
                 @if(session('success'))
                     <div class="mb-4 p-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
                         {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="mb-4 p-4 text-sm text-blue-700 bg-blue-100 rounded-lg" role="alert">
+                        {{ session('info') }}
                     </div>
                 @endif
 
@@ -44,15 +52,21 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $formation->duration_hours }} س</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 space-x-reverse">
                                             
-                                            <!-- زر التسجيل -->
-                                            <form action="{{ route('formations.enrollments.store', $formation->id) }}" method="POST" class="inline-block">
-                                                @csrf
-                                                <button type="submit" class="text-green-700 hover:text-green-900 bg-green-50 px-3 py-1 rounded-md font-bold transition">
-                                                    تسجيل
-                                                </button>
-                                            </form>
+                                            <!-- زر التسجيل أو إظهار حالة مسجل -->
+                                            @if($formation->users->contains(auth()->id()))
+                                                <span class="inline-block bg-gray-100 text-gray-500 px-3 py-1 rounded-md font-semibold cursor-not-allowed">
+                                                    مسجل ✓
+                                                </span>
+                                            @else
+                                                <form action="{{ route('formations.self-enroll', $formation->id) }}" method="POST" class="inline-block">
+                                                    @csrf
+                                                    <button type="submit" class="text-green-700 hover:text-green-900 bg-green-50 px-3 py-1 rounded-md font-bold transition">
+                                                        تسجيل
+                                                    </button>
+                                                </form>
+                                            @endif
 
-                                            <!-- خيارات الأدمن بناءً على role -->
+                                            <!-- أزرار التحكم الخاصة بالأدمن -->
                                             @if(auth()->user()->role === 'admin')
                                                 <a href="{{ route('formations.enrollments.index', $formation->id) }}" class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md transition">
                                                     المشاركون

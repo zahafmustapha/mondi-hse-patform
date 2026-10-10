@@ -1,60 +1,54 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center w-full px-2" dir="rtl">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center">
-                    <img src="{{ asset('images/logo.png') }}" alt="Mondi Group" class="h-10 w-auto object-contain">
-                </div>
-                <div>
-                    <h2 class="font-bold text-2xl text-mondi-900 leading-tight">
-                        تكويناتي الخاصة
-                    </h2>
-                    <p class="text-xs text-gray-500 font-medium">Mondi Tangier Plant - سجل التكوينات الشخصي</p>
-                </div>
-            </div>
-        </div>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight" dir="rtl">
+            {{ __('تكويناتي الخاصة') }}
+        </h2>
     </x-slot>
 
-    <div class="py-10 bg-slate-50 min-h-screen">
+    <div class="py-12" dir="rtl">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-md sm:rounded-xl border border-gray-200" dir="rtl">
-                <div class="bg-mondi-900 text-white px-6 py-4 flex justify-between items-center">
-                    <h3 class="font-bold text-lg">قائمة التكوينات المسجل فيها</h3>
-                    <span class="bg-mondi-700 text-xs px-3 py-1 rounded-full font-medium">إجمالي التكوينات: {{ $formations->count() }}</span>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                
+                <div class="mb-6 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">قائمة التكوينات المسجل فيها</h3>
+                    <span class="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-md">
+                        إجمالي التكوينات: {{ $formations->count() }}
+                    </span>
                 </div>
 
-                <table class="min-w-full divide-y divide-gray-200 text-right">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="px-6 py-4 text-xs font-bold text-mondi-900 uppercase">عنوان التكوين</th>
-                            <th class="px-6 py-4 text-xs font-bold text-mondi-900 uppercase">الوصف</th>
-                            <th class="px-6 py-4 text-xs font-bold text-mondi-900 uppercase">المدة (ساعات)</th>
-                            <th class="px-6 py-4 text-xs font-bold text-mondi-900 uppercase text-center">حالة الحضور</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-100">
-                        @forelse($formations as $formation)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-6 py-4 font-bold text-gray-900">{{ $formation->title }}</td>
-                                <td class="px-6 py-4 text-gray-600">{{ $formation->description }}</td>
-                                <td class="px-6 py-4 text-gray-800 font-semibold">{{ $formation->duration_hours }} ساعة</td>
-                                <td class="px-6 py-4 text-center">
-                                    @if($formation->pivot->status === 'completed')
-                                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">مكتمل</span>
-                                    @else
-                                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">قيد الانتظار</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500 font-medium">
-                                    لم تقم بالتسجيل في أي تكوين بعد.
-                                </td>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عنوان التكوين</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">الوصف</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">المدة (ساعات)</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">حالة الحضور</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @isset($formations)
+                                @forelse($formations as $formation)
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $formation->title }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-500">{{ $formation->description }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $formation->duration_hours }} س</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                            <span class="inline-block bg-yellow-50 text-yellow-700 border border-yellow-200 px-3 py-1 rounded-md text-xs font-semibold">
+                                                قيد الانتظار
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">لم تقم بالتسجيل في أي تكوين بعد.</td>
+                                    </tr>
+                                @endforelse
+                            @endisset
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
