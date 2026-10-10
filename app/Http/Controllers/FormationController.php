@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Formation;
+use App\Models\User;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 
 class FormationController extends Controller
@@ -29,17 +31,27 @@ class FormationController extends Controller
       });
     }
 
-
     $formations = $query->get();
 
-    // الإحصائيات العامة
+    // الإحصائيات العامة (KPIs متكاملة)
     $totalFormations = Formation::count();
-    $totalEnrollments = DB::table('enrollments')->count();
-    $completedCount = DB::table('enrollments')->where('status', 'completed')->count();
+    $totalEnrollments = Enrollment::count();
+    $totalEmployees = User::count();
+    $totalHours = Formation::sum('duration_hours'); // مجموع ساعات التكوينات
+    $completedCount = Enrollment::where('status', 'completed')->count();
     $completionRate = $totalEnrollments > 0 ? round(($completedCount / $totalEnrollments) * 100) : 0;
 
-    return view('formations.index', compact('formations', 'totalFormations', 'totalEnrollments', 'completedCount', 'completionRate'));
+    return view('formations.index', compact(
+        'formations', 
+        'totalFormations', 
+        'totalEnrollments', 
+        'totalEmployees', 
+        'totalHours',
+        'completedCount', 
+        'completionRate'
+    ));
   }
+
   // واجهة التكوينات الخاصة بالموظف
   public function myTrainings()
   {
@@ -51,6 +63,7 @@ class FormationController extends Controller
 
     return view('employee.trainings', compact('formations'));
   }
+
   public function create()
   {
     return view('formations.create');
@@ -69,15 +82,11 @@ class FormationController extends Controller
     return redirect()->route('formations.index')->with('success', 'تم إنشاء التكوين بنجاح!');
   }
 
-  // 1. صفحة تعديل التكوين
   public function edit(Formation $formation)
   {
     return view('formations.edit', compact('formation'));
   }
 
-
-
-  // 2. تحديث التكوين في قاعدة البيانات
   public function update(Request $request, Formation $formation)
   {
     $validated = $request->validate([
@@ -91,7 +100,6 @@ class FormationController extends Controller
     return redirect()->route('formations.index')->with('success', 'تم تحديث البيانات بنجاح!');
   }
 
-  // 3. حذف التكوين
   public function destroy(Formation $formation)
   {
     $formation->delete();
